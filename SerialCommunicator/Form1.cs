@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO.Ports;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SerialCommunicator
 {
@@ -118,20 +119,31 @@ namespace SerialCommunicator
 
         private void sendButton_Click(object sender, EventArgs e)
         {
-            var text = File.ReadAllText(FilePath);
-            Regex.Replace(text, @"\r\n|\r|\n", "\r\n");
+            var lines = File.ReadAllLines(FilePath);
+            foreach (var line in lines)
+            {
+                Regex.Replace(line, @"\r\n|\r|\n", "\r\n");
+            }
 
-            progressBar.Style = ProgressBarStyle.Marquee;
-            Task.Run(() => SendFile(text));
+            progressBar.Maximum = lines.Length;
+            Task.Run(() => SendFile(lines));
         }
 
-        private async Task SendFile(string text)
+        private async Task SendFile(string[] lines)
         {
-            SerialPort.Write(text);
+            for(int i = 0; i < lines.Length; i++)
+            {
+                SerialPort.Write(lines[i]);
+                progressBar.Invoke((MethodInvoker)delegate
+                {
+                    progressBar.Value = i + 1;
+                });
+                Thread.Sleep(20);
+            }
             Log("File sent");
             progressBar.Invoke((MethodInvoker)delegate
             {
-                progressBar.Style = ProgressBarStyle.Continuous;
+                progressBar.Value = 0;
             });
         }
     }
