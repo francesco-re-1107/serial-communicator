@@ -14,27 +14,29 @@ using System.Threading;
 
 namespace SerialCommunicator
 {
-    public partial class Form1 : Form
+    public partial class MainScreen : Form
     {
-        public string Port { get; set; } = "COM1";
+        public string Port { get; set; }
 
-        public int BaudRate { get; set; } = 4800;
+        public int BaudRate { get; set; }
 
-        public Parity Parity { get; set; } = Parity.Even;
+        public Parity Parity { get; set; }
 
-        public StopBits StopBits { get; set; } = StopBits.Two;
+        public StopBits StopBits { get; set; }
 
-        public int DataBits { get; set; } = 7;
+        public int DataBits { get; set; }
+
+        public Handshake FlowControl { get; set; }
+
+        public bool ReplaceNewLine { get; set; } = false;
 
         public string FilePath { get; set; } = "";
 
         public bool IsConnected { get; set; } = false;
 
-        public Handshake FlowControl { get; set; } = Handshake.XOnXOff;
-
         private SerialPort SerialPort = null;
 
-        public Form1()
+        public MainScreen()
         {
             InitializeComponent();
         }
@@ -52,11 +54,12 @@ namespace SerialCommunicator
             Port = portDropdown.SelectedItem.ToString();
             Console.WriteLine(Port);
             Log("Port selected: " + Port);
+            checkConnectionButtons();
         }
 
         private void baudRateDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int r = 4800;
+            int r;
             string baudRateString = baudRateDropdown.SelectedItem.ToString();
             if (int.TryParse(baudRateString, out r))
             {
@@ -68,6 +71,7 @@ namespace SerialCommunicator
             }
 
             Log("Baud rate selected: " + BaudRate);
+            checkConnectionButtons();
         }
 
         private void browseFilesButton_Click(object sender, EventArgs e)
@@ -121,7 +125,9 @@ namespace SerialCommunicator
             {
                 Log("Error: " + ex.Message);
             }
-            
+
+            checkConnectionButtons();
+
         }
 
         private void sendButton_Click(object sender, EventArgs e)
@@ -150,6 +156,91 @@ namespace SerialCommunicator
             logTextBox.SelectionStart = logTextBox.Text.Length;
             // scroll it automatically
             logTextBox.ScrollToCaret();
+        }
+
+        private void parityDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Parity = (Parity) parityDropdown.SelectedIndex;
+
+            Log("Parity selected: " + parityDropdown.SelectedItem.ToString());
+            checkConnectionButtons();
+        }
+
+        private void databitsDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            int d;
+            string databitsString = databitsDropdown.SelectedItem.ToString();
+
+            if (int.TryParse(databitsString, out d))
+            {
+                DataBits = d;
+            }
+            else
+            {
+                Log("Error selecting data bits: " + databitsString);
+            }
+
+            Log("Data bits selected: " + DataBits);
+            checkConnectionButtons();
+        }
+
+        private void stopbitsDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            StopBits = (StopBits) stopbitsDropdown.SelectedIndex;
+
+            Log("Stop bits selected: " + stopbitsDropdown.SelectedItem.ToString());
+            checkConnectionButtons();
+        }
+
+        private void flowcontrolDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            FlowControl = (Handshake) flowcontrolDropdown.SelectedIndex;
+
+            Log("Flow control selected: " + flowcontrolDropdown.SelectedItem.ToString());
+            checkConnectionButtons();
+        }
+
+        private void checkConnectionButtons()
+        {
+            if (IsConnected)
+            {
+                connectButton.Enabled = false;
+                disconnectButton.Enabled = true;
+            }
+            else
+            {
+                //check all settings
+                bool shouldConnect = true;
+
+                connectButton.Enabled = shouldConnect;
+                disconnectButton.Enabled = false;
+            }
+
+        }
+
+        private void disconnectButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (SerialPort.IsOpen)
+                {
+                    SerialPort.Close();
+                    SerialPort.Dispose();
+                }
+                IsConnected = false;
+                Log("Port closed successfully");
+            }
+            catch(Exception ex)
+            {
+                Log("Error closing serial port: " + ex.Message);
+            }
+
+            checkConnectionButtons();
+        }
+
+        private void replaceNewlineCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            ReplaceNewLine = replaceNewlineCheckbox.Checked;
         }
     }
 }
