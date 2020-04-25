@@ -110,6 +110,7 @@
             this.logTextBox.Size = new System.Drawing.Size(361, 116);
             this.logTextBox.TabIndex = 6;
             this.logTextBox.Text = "";
+            this.logTextBox.TextChanged += new System.EventHandler(this.logTextBox_TextChanged);
             // 
             // progressBar
             // 

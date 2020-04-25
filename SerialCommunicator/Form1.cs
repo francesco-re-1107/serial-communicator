@@ -104,47 +104,52 @@ namespace SerialCommunicator
 
         private void connectButton_Click(object sender, EventArgs e)
         {
+            try
+            {
+                SerialPort = new SerialPort(Port, BaudRate, Parity, DataBits, StopBits);
+                SerialPort.Handshake = FlowControl;
+                SerialPort.RtsEnable = true;
+                SerialPort.DtrEnable = true;
+                SerialPort.Encoding = new ASCIIEncoding();
+                SerialPort.Open();
 
-            IsConnected = true;
-            SerialPort = new SerialPort(Port, BaudRate, Parity, DataBits, StopBits);
-            SerialPort.Open();
-            SerialPort.Handshake = FlowControl;
-            SerialPort.RtsEnable = true;
-            SerialPort.DtrEnable = true;
-            SerialPort.Encoding = new ASCIIEncoding();
-            connectButton.Enabled = false;
+                connectButton.Enabled = false;
+                IsConnected = true;
 
-            Log("Connected to " + Port);
+                Log("Connected to " + Port);
+            }catch(Exception ex)
+            {
+                Log("Error: " + ex.Message);
+            }
+            
         }
 
         private void sendButton_Click(object sender, EventArgs e)
         {
-            var lines = File.ReadAllLines(FilePath);
-            foreach (var line in lines)
-            {
-                Regex.Replace(line, @"\r\n|\r|\n", "\r\n");
-            }
+            var text = File.ReadAllText(FilePath);
+            Regex.Replace(text, @"\r\n|\r|\n", "\r\n");
 
-            progressBar.Maximum = lines.Length;
-            Task.Run(() => SendFile(lines));
+            progressBar.Style = ProgressBarStyle.Marquee;
+            Task.Run(() => SendFile(text));
         }
 
-        private async Task SendFile(string[] lines)
+        private async Task SendFile(string text)
         {
-            for(int i = 0; i < lines.Length; i++)
-            {
-                SerialPort.Write(lines[i]);
-                progressBar.Invoke((MethodInvoker)delegate
-                {
-                    progressBar.Value = i + 1;
-                });
-                Thread.Sleep(20);
-            }
+            SerialPort.Write(text);
+            
             Log("File sent");
             progressBar.Invoke((MethodInvoker)delegate
             {
-                progressBar.Value = 0;
+                progressBar.Style = ProgressBarStyle.Continuous;
             });
+        }
+
+        private void logTextBox_TextChanged(object sender, EventArgs e)
+        {
+            // set the current caret position to the end
+            logTextBox.SelectionStart = logTextBox.Text.Length;
+            // scroll it automatically
+            logTextBox.ScrollToCaret();
         }
     }
 }
