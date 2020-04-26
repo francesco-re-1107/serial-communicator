@@ -1,5 +1,5 @@
 # Serial Communicator
-This program lets you send files to serial ports and reactive data from them
+This program lets you send files to serial ports and receive data from them.
 
 ## Screenshot
 ![screenshot](https://i.imgur.com/ioGSW0z.png)
