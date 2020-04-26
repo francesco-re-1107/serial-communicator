@@ -46,9 +46,12 @@
             this.parityDropdown = new System.Windows.Forms.ComboBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.readTextBox = new System.Windows.Forms.RichTextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // portDropdown
@@ -58,7 +61,7 @@
             this.portDropdown.Name = "portDropdown";
             this.portDropdown.Size = new System.Drawing.Size(160, 21);
             this.portDropdown.TabIndex = 0;
-            this.portDropdown.Text = "Port";
+            this.portDropdown.Text = "Port*";
             this.portDropdown.SelectedIndexChanged += new System.EventHandler(this.portDropdown_SelectedIndexChanged);
             // 
             // baudRateDropdown
@@ -88,7 +91,7 @@
             this.baudRateDropdown.Name = "baudRateDropdown";
             this.baudRateDropdown.Size = new System.Drawing.Size(160, 21);
             this.baudRateDropdown.TabIndex = 1;
-            this.baudRateDropdown.Text = "Baud rate";
+            this.baudRateDropdown.Text = "Baud rate*";
             this.baudRateDropdown.SelectedIndexChanged += new System.EventHandler(this.baudRateDropdown_SelectedIndexChanged);
             // 
             // connectButton
@@ -108,7 +111,7 @@
             this.sendButton.Name = "sendButton";
             this.sendButton.Size = new System.Drawing.Size(239, 26);
             this.sendButton.TabIndex = 3;
-            this.sendButton.Text = "Invia";
+            this.sendButton.Text = "Send";
             this.sendButton.UseVisualStyleBackColor = true;
             this.sendButton.Click += new System.EventHandler(this.sendButton_Click);
             // 
@@ -236,7 +239,7 @@
             this.stopbitsDropdown.Name = "stopbitsDropdown";
             this.stopbitsDropdown.Size = new System.Drawing.Size(160, 21);
             this.stopbitsDropdown.TabIndex = 10;
-            this.stopbitsDropdown.Text = "Stop Bits";
+            this.stopbitsDropdown.Text = "Stop Bits*";
             this.stopbitsDropdown.SelectedIndexChanged += new System.EventHandler(this.stopbitsDropdown_SelectedIndexChanged);
             // 
             // parityDropdown
@@ -252,7 +255,7 @@
             this.parityDropdown.Name = "parityDropdown";
             this.parityDropdown.Size = new System.Drawing.Size(160, 21);
             this.parityDropdown.TabIndex = 9;
-            this.parityDropdown.Text = "Parity";
+            this.parityDropdown.Text = "Parity*";
             this.parityDropdown.SelectedIndexChanged += new System.EventHandler(this.parityDropdown_SelectedIndexChanged);
             // 
             // groupBox2
@@ -277,11 +280,31 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Transfer";
             // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.readTextBox);
+            this.groupBox4.Location = new System.Drawing.Point(388, 12);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(334, 468);
+            this.groupBox4.TabIndex = 12;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Read";
+            // 
+            // readTextBox
+            // 
+            this.readTextBox.Location = new System.Drawing.Point(14, 19);
+            this.readTextBox.Name = "readTextBox";
+            this.readTextBox.Size = new System.Drawing.Size(305, 437);
+            this.readTextBox.TabIndex = 0;
+            this.readTextBox.Text = "";
+            this.readTextBox.TextChanged += new System.EventHandler(this.readTextBox_TextChanged);
+            // 
             // MainScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(386, 491);
+            this.ClientSize = new System.Drawing.Size(734, 491);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -296,6 +319,7 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -320,6 +344,8 @@
         private System.Windows.Forms.CheckBox replaceNewlineCheckbox;
         private System.Windows.Forms.ComboBox flowcontrolDropdown;
         private System.Windows.Forms.ComboBox databitsDropdown;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.RichTextBox readTextBox;
     }
 }
 

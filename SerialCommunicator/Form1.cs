@@ -16,15 +16,15 @@ namespace SerialCommunicator
 {
     public partial class MainScreen : Form
     {
-        public string Port { get; set; }
+        public string Port { get; set; } = "";
 
-        public int BaudRate { get; set; }
+        public int BaudRate { get; set; } = -1;
 
         public Parity Parity { get; set; }
 
         public StopBits StopBits { get; set; }
 
-        public int DataBits { get; set; }
+        public int DataBits { get; set; } = -1;
 
         public Handshake FlowControl { get; set; }
 
@@ -50,11 +50,7 @@ namespace SerialCommunicator
             }
             readSettingsFromMemory();
         }
-
-        /**
-         * 
-         * 
-         */
+        
         private void readSettingsFromMemory()
         {
             if (Properties.Settings.Default.BaudRate != -1)
@@ -62,7 +58,6 @@ namespace SerialCommunicator
                 BaudRate = Properties.Settings.Default.BaudRate;
                 baudRateDropdown.SelectedItem = BaudRate.ToString();
             }
-            Console.WriteLine(Properties.Settings.Default.Parity);
 
             if (Properties.Settings.Default.Parity != -1)
             {
@@ -80,7 +75,7 @@ namespace SerialCommunicator
             if (Properties.Settings.Default.StopBits != -1)
             {
                 var stopBitsInt = Properties.Settings.Default.StopBits;
-                StopBits = (StopBits)stopBitsInt;
+                StopBits = (StopBits) stopBitsInt;
                 stopbitsDropdown.SelectedIndex = stopBitsInt;
             }
 
@@ -97,7 +92,6 @@ namespace SerialCommunicator
         private void portDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
             Port = portDropdown.SelectedItem.ToString();
-            Console.WriteLine(Port);
             Log("Port selected: " + Port);
             checkConnectionButtons();
         }
@@ -159,11 +153,17 @@ namespace SerialCommunicator
         {
             try
             {
-                SerialPort = new SerialPort(Port, BaudRate, Parity, DataBits, StopBits);
+                SerialPort = new SerialPort(Port, BaudRate, Parity);
+                if (DataBits != -1)
+                    SerialPort.DataBits = DataBits;
+                if(StopBits != StopBits.None)
+                    SerialPort.StopBits = StopBits;
+
                 SerialPort.Handshake = FlowControl;
                 SerialPort.RtsEnable = true;
                 SerialPort.DtrEnable = true;
                 SerialPort.Encoding = new ASCIIEncoding();
+                SerialPort.DataReceived += new SerialDataReceivedEventHandler(port_DataReceived);
                 SerialPort.Open();
 
                 connectButton.Enabled = false;
@@ -177,6 +177,12 @@ namespace SerialCommunicator
 
             checkConnectionButtons();
 
+        }
+
+        private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            // Show all the incoming data in the port's buffer
+            readTextBox.AppendText(SerialPort.ReadExisting());
         }
 
         private void sendButton_Click(object sender, EventArgs e)
@@ -271,8 +277,10 @@ namespace SerialCommunicator
             }
             else
             {
-                //check all settings
-                bool shouldConnect = true;
+                bool shouldConnect = 
+                    !string.IsNullOrEmpty(Port) && 
+                    BaudRate != -1 &&
+                    StopBits != StopBits.None;
 
                 connectButton.Enabled = shouldConnect;
                 disconnectButton.Enabled = false;
@@ -307,7 +315,15 @@ namespace SerialCommunicator
             Properties.Settings.Default.ReplaceNewLine = ReplaceNewLine;
             Properties.Settings.Default.Save();
 
-            Log("Checked replace new line with CR LF");
+            Log("Replace new line with CR LF: " + ReplaceNewLine);
+        }
+
+        private void readTextBox_TextChanged(object sender, EventArgs e)
+        {
+            // set the current caret position to the end
+            logTextBox.SelectionStart = logTextBox.Text.Length;
+            // scroll it automatically
+            logTextBox.ScrollToCaret();
         }
     }
 }
