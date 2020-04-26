@@ -39,14 +39,59 @@ namespace SerialCommunicator
         public MainScreen()
         {
             InitializeComponent();
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            MaximizeBox = false;
             foreach (var p in SerialPort.GetPortNames()){
                 portDropdown.Items.Add(p);
             }
-                
+            readSettingsFromMemory();
+        }
+
+        /**
+         * 
+         * 
+         */
+        private void readSettingsFromMemory()
+        {
+            if (Properties.Settings.Default.BaudRate != -1)
+            {
+                BaudRate = Properties.Settings.Default.BaudRate;
+                baudRateDropdown.SelectedItem = BaudRate.ToString();
+            }
+            Console.WriteLine(Properties.Settings.Default.Parity);
+
+            if (Properties.Settings.Default.Parity != -1)
+            {
+                var parityInt = Properties.Settings.Default.Parity;
+                Parity = (Parity) parityInt;
+                parityDropdown.SelectedIndex = parityInt;
+            }
+
+            if (Properties.Settings.Default.DataBits != -1)
+            {
+                DataBits = Properties.Settings.Default.DataBits;
+                databitsDropdown.SelectedItem = DataBits.ToString();
+            }
+
+            if (Properties.Settings.Default.StopBits != -1)
+            {
+                var stopBitsInt = Properties.Settings.Default.StopBits;
+                StopBits = (StopBits)stopBitsInt;
+                stopbitsDropdown.SelectedIndex = stopBitsInt;
+            }
+
+            if (Properties.Settings.Default.FlowControl != -1)
+            {
+                var flowControlInt = Properties.Settings.Default.FlowControl;
+                FlowControl = (Handshake)flowControlInt;
+                flowcontrolDropdown.SelectedIndex = flowControlInt;
+            }
+
+            ReplaceNewLine = Properties.Settings.Default.ReplaceNewLine;
         }
 
         private void portDropdown_SelectedIndexChanged(object sender, EventArgs e)
@@ -64,6 +109,8 @@ namespace SerialCommunicator
             if (int.TryParse(baudRateString, out r))
             {
                 BaudRate = r;
+                Properties.Settings.Default.BaudRate = BaudRate;
+                Properties.Settings.Default.Save();
             }
             else
             {
@@ -85,8 +132,6 @@ namespace SerialCommunicator
                     filePathTextBox.Text = file;
                     FilePath = file;
                     Log("Selected file " + file);
-                    sendButton.Enabled = true;
-                    return;
                 }
                 catch (IOException ex)
                 {
@@ -94,8 +139,12 @@ namespace SerialCommunicator
                 }
             }
 
-            FilePath = "";
-            sendButton.Enabled = false;
+            checkSendButton();
+        }
+
+        private void checkSendButton()
+        {
+            sendButton.Enabled = IsConnected && !string.IsNullOrEmpty(FilePath);
         }
 
         private void Log(string message)
@@ -133,13 +182,15 @@ namespace SerialCommunicator
         private void sendButton_Click(object sender, EventArgs e)
         {
             var text = File.ReadAllText(FilePath);
-            Regex.Replace(text, @"\r\n|\r|\n", "\r\n");
+
+            if (ReplaceNewLine)
+                Regex.Replace(text, @"\r\n|\r|\n", "\r\n");
 
             progressBar.Style = ProgressBarStyle.Marquee;
-            Task.Run(() => SendFile(text));
+            Task.Run(() => sendFile(text));
         }
 
-        private async Task SendFile(string text)
+        private async Task sendFile(string text)
         {
             SerialPort.Write(text);
             
@@ -163,6 +214,9 @@ namespace SerialCommunicator
             Parity = (Parity) parityDropdown.SelectedIndex;
 
             Log("Parity selected: " + parityDropdown.SelectedItem.ToString());
+
+            Properties.Settings.Default.Parity = parityDropdown.SelectedIndex;
+            Properties.Settings.Default.Save();
             checkConnectionButtons();
         }
 
@@ -174,6 +228,8 @@ namespace SerialCommunicator
             if (int.TryParse(databitsString, out d))
             {
                 DataBits = d;
+                Properties.Settings.Default.DataBits = DataBits;
+                Properties.Settings.Default.Save();
             }
             else
             {
@@ -188,6 +244,9 @@ namespace SerialCommunicator
         {
             StopBits = (StopBits) stopbitsDropdown.SelectedIndex;
 
+            Properties.Settings.Default.StopBits = stopbitsDropdown.SelectedIndex;
+            Properties.Settings.Default.Save();
+
             Log("Stop bits selected: " + stopbitsDropdown.SelectedItem.ToString());
             checkConnectionButtons();
         }
@@ -195,6 +254,9 @@ namespace SerialCommunicator
         private void flowcontrolDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
             FlowControl = (Handshake) flowcontrolDropdown.SelectedIndex;
+
+            Properties.Settings.Default.FlowControl = flowcontrolDropdown.SelectedIndex;
+            Properties.Settings.Default.Save();
 
             Log("Flow control selected: " + flowcontrolDropdown.SelectedItem.ToString());
             checkConnectionButtons();
@@ -215,7 +277,7 @@ namespace SerialCommunicator
                 connectButton.Enabled = shouldConnect;
                 disconnectButton.Enabled = false;
             }
-
+            checkSendButton();
         }
 
         private void disconnectButton_Click(object sender, EventArgs e)
@@ -241,6 +303,11 @@ namespace SerialCommunicator
         private void replaceNewlineCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             ReplaceNewLine = replaceNewlineCheckbox.Checked;
+
+            Properties.Settings.Default.ReplaceNewLine = ReplaceNewLine;
+            Properties.Settings.Default.Save();
+
+            Log("Checked replace new line with CR LF");
         }
     }
 }

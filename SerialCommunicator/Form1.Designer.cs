@@ -133,7 +133,7 @@
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            this.openFileDialog1.Filter = "Files|*.nc;";
+            this.openFileDialog1.Filter = "Text|*.txt|All|*.*";
             // 
             // logTextBox
             // 
@@ -147,6 +147,7 @@
             // progressBar
             // 
             this.progressBar.Location = new System.Drawing.Point(12, 453);
+            this.progressBar.MarqueeAnimationSpeed = 500;
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(362, 27);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
@@ -285,6 +286,7 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.progressBar);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MainScreen";
             this.ShowIcon = false;
             this.Text = "Serial Communicator";
