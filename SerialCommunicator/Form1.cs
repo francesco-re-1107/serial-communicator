@@ -332,6 +332,8 @@ namespace SerialCommunicator
 
             saveFileDialog.Title = "Save received text";
             saveFileDialog.ShowDialog();
+            saveFileDialog.DefaultExt = "txt";
+            saveFileDialog.CheckFileExists = true;
 
             var filePath = saveFileDialog.FileName;
             if (filePath != "")
