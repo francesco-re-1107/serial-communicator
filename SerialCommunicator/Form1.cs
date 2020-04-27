@@ -117,10 +117,10 @@ namespace SerialCommunicator
 
         private void browseFilesButton_Click(object sender, EventArgs e)
         {
-            DialogResult result = openFileDialog1.ShowDialog(); // Show the dialog.
+            DialogResult result = openFileDialog.ShowDialog(); // Show the dialog.
             if (result == DialogResult.OK) // Test result.
             {
-                string file = openFileDialog1.FileName;
+                string file = openFileDialog.FileName;
                 try
                 {
                     filePathTextBox.Text = file;
@@ -182,7 +182,7 @@ namespace SerialCommunicator
         private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             // Show all the incoming data in the port's buffer
-            readTextBox.AppendText(SerialPort.ReadExisting());
+            receiveTextBox.AppendText(SerialPort.ReadExisting());
         }
 
         private void sendButton_Click(object sender, EventArgs e)
@@ -318,12 +318,39 @@ namespace SerialCommunicator
             Log("Replace new line with CR LF: " + ReplaceNewLine);
         }
 
-        private void readTextBox_TextChanged(object sender, EventArgs e)
+        private void receiveTextBox_TextChanged(object sender, EventArgs e)
         {
             // set the current caret position to the end
             logTextBox.SelectionStart = logTextBox.Text.Length;
             // scroll it automatically
             logTextBox.ScrollToCaret();
+        }
+
+        private void saveToFileButton_Click(object sender, EventArgs e)
+        {
+            var text = receiveTextBox.Text;
+
+            saveFileDialog.Title = "Save received text";
+            saveFileDialog.ShowDialog();
+
+            var filePath = saveFileDialog.FileName;
+            if (filePath != "")
+            {
+                try
+                {
+                    File.WriteAllText(filePath, text);
+                    Log("Saved received text to file");
+                }catch(Exception ex)
+                {
+                    Log("Error saving received text: " + ex.Message);
+                }
+            }
+        }
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            receiveTextBox.Text = "";
+            Log("Reset receive box");
         }
     }
 }
