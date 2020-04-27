@@ -2,7 +2,7 @@
 This program lets you send files to serial ports and receive data from them.
 
 ## Screenshot
-![screenshot](https://i.imgur.com/ioGSW0z.png)
+![screenshot](https://i.imgur.com/xfEnG7q.png)
 
 ## Usage
 
